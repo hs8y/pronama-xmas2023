@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <title>#クリスマスプロ生ちゃん</title>
+    <meta name="viewport" content="width=device-width">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        body { padding: 50px; background: #d9d9d9; }
+    </style>
+</head>
+<body>
+    <div id="app"></div>
+
+    <script type="text/javascript">
+    (function () {
+        const TREE_WIDTH = 220;
+        const GROUND_HEIGHT = 60;
+        const CROWN_COUNT = 3;
+        const SNOW_COUNT = 20;
+
+        const getRandomNaturalNumber = (max_value) => {
+            return Math.floor(Math.random() * (max_value + 1));
+        };
+
+        const extractNumberValue = (value) => {
+            const num = parseFloat(value);
+            return (!isNaN(num) ? num : 0);
+        };
+
+        const createDiv = () => {
+            const $div = document.createElement('div');
+            return $div;
+        };
+
+        const updateStyle = ($element, stylelist) => {
+            Object.entries(stylelist).forEach(([k, v]) => {
+                $element.style[k] = v;
+            });
+        };
+
+        const createStyledDiv = (stylelist) => {
+            const $div = createDiv();
+            updateStyle($div, stylelist);
+            return $div;
+        };
+
+
+        const $app = document.getElementById('app');
+        updateStyle($app, {
+            maxWidth: `${TREE_WIDTH + 200}px`,
+            margin: '0 auto',
+            padding: `60px 20px ${GROUND_HEIGHT - 10}px`,
+            background: '#133650',
+            position: 'relative',
+            overflow: 'hidden',
+        });
+
+        const $tree = createStyledDiv({ // ツリー本体
+            maxWidth: `${TREE_WIDTH}px`,
+            position: 'relative',
+            zIndex: 2,
+        });
+
+        const $ground = createStyledDiv({ // 地面
+            width: '100%',
+            height: `${GROUND_HEIGHT}px`,
+            background: 'linear-gradient(180deg, #f9f9f9 0%, #efefef 100%) no-repeat',
+            position: 'absolute',
+            left: 0,
+            bottom: 0,
+            zIndex: (SNOW_COUNT + 10),
+        });
+
+        const WINDOW_COLOR = '#a25d11';
+        const WINDOW_WIDTH = '20px';
+        const $window = createStyledDiv({ // 窓
+            border: `${WINDOW_WIDTH} solid ${WINDOW_COLOR}`,
+            backgroundImage: `linear-gradient(${WINDOW_COLOR} 0%, ${WINDOW_COLOR} 100%), linear-gradient(${WINDOW_COLOR} 0%, ${WINDOW_COLOR} 100%)`,
+            backgroundRepeat: 'no-repeat',
+            backgroundSize: `100% ${WINDOW_WIDTH}, ${WINDOW_WIDTH} 100%`,
+            backgroundPosition: 'center',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            margin: 'auto',
+            zIndex: (SNOW_COUNT + 20),
+        });
+
+        const $star = createStyledDiv({ // 星
+            width: '25%',
+            aspectRatio: '1 / 1',
+            background: '#f5cd3c',
+            margin: '0 auto',
+            transform: 'translateY(25%)',
+            position: 'relative',
+            clipPath: 'polygon(50% 0%, 70% 30%, 100% 40%, 80% 65%, 85% 100%, 50% 85%, 15% 100%, 20% 65%, 0% 40%, 30% 30%)',
+        });
+
+        const $crown = createStyledDiv({ // 樹冠
+            position: 'relative',
+        });
+
+        const $trunk = createStyledDiv({ // 幹
+            width: '20%',
+            aspectRatio: '2 / 3',
+            background: '#b87417',
+            position: 'relative',
+            margin: '-5% auto 0',
+            borderRadius: '0% 0% 25% 25%',
+        });
+
+        // 樹冠にパーツを追加
+        for (let i = 0; i < CROWN_COUNT; i++) {
+            const $group = createStyledDiv({ // 樹冠の各部
+                width: `${100 - 10 * ((CROWN_COUNT - 1) - i)}%`,
+                background: '#249b4f',
+                position: 'relative',
+                zIndex: (CROWN_COUNT - i),
+                margin      : (i === 0 ? '0 auto' : '-5% auto 0'),
+                aspectRatio : (i === 0 ? '5 / 3' : '5 / 2' ),
+                clipPath: (i === 0
+                    ? 'polygon(50% 0%, 50% 0%, 100% 95%, 50% 100%, 0% 95%)'
+                    : 'polygon(25% 0%, 75% 0%, 100% 95%, 50% 100%, 0% 95%)'
+                ),
+            });
+
+            for (let j = 0; j < 2; j++) {
+                const ornament_color = (j === 0 ? '#ffff99' : '#ffaaaa');
+
+                const $ornament = createStyledDiv({ // ツリーの飾り
+                    width: '10%',
+                    aspectRatio: '1 / 1',
+                    borderRadius: '50%',
+                    position: 'absolute',
+                    left    : (j === 0 ? '28%'  : 'auto'),
+                    right   : (j === 0 ? 'auto' : '25%'),
+                    bottom  : (j === 0 ? '35%'  : '15%'),
+                    backgroundColor: ornament_color,
+                    backgroundImage: 'radial-gradient(rgba(255, 255, 255, 0.1) 0%, transparent 50%)',
+                });
+
+                $group.insertAdjacentElement('beforeend', $ornament);
+            }
+
+            $crown.insertAdjacentElement('beforeend', $group);
+        }
+
+        // 重なり順を設定
+        updateStyle($star,  { zIndex: 3 });
+        updateStyle($crown, { zIndex: 2 });
+        updateStyle($trunk, { zIndex: 1 });
+
+        // ツリーにパーツを追加
+        $tree.insertAdjacentElement('beforeend', $star);
+        $tree.insertAdjacentElement('beforeend', $crown);
+        $tree.insertAdjacentElement('beforeend', $trunk);
+
+        // 本体に各コンポーネントを追加
+        $app.insertAdjacentElement('beforeend', $tree);
+        $app.insertAdjacentElement('beforeend', $ground);
+        $app.insertAdjacentElement('beforeend', $window);
+
+
+        // 雪アニメーションの描画
+        const setSnowPosition = ($snow_element, top_rate, left_rate, opacity) => {
+            updateStyle($snow_element, {
+                top: `${top_rate}%`,
+                left: `${left_rate}%`,
+                opacity: opacity,
+            });
+        };
+        const resetSnowPosition = ($snow_element) => {
+            setSnowPosition($snow_element, 0, getRandomNaturalNumber(100), 0);
+        };
+        // 雪の降るアニメーション
+        const animateSnow = ($snow_element) => {
+            const update = () => {
+                // 現在の位置
+                const [w, t, l] = [
+                    extractNumberValue($snow_element.style.width),
+                    extractNumberValue($snow_element.style.top),
+                    extractNumberValue($snow_element.style.left),
+                ];
+
+                if (t > 100) { // 現在位置が画面外の場合
+                    resetSnowPosition($snow_element);
+                    animateSnow($snow_element); // アニメーションを再開
+                    return;
+                }
+
+                // 位置と透過状態を更新
+                const is_left_update = getRandomNaturalNumber(10) < 2;
+                const left_distance_rate = (getRandomNaturalNumber(10) - 5) / 100;
+                setSnowPosition($snow_element,
+                    t + (0.1 + (w / 250)),
+                    l + (is_left_update ? left_distance_rate : 0),
+                    Math.min(1, (t * 0.05)),
+                );
+
+                requestAnimationFrame(update);
+            };
+            update();
+        };
+
+        // 雪を設置
+        for (let i = 0; i < SNOW_COUNT; i++) {
+            const $snow = createStyledDiv({ // 雪
+                width: `${getRandomNaturalNumber(15)}px`,
+                minWidth: '5px',
+                aspectRatio: '1 / 1',
+                background: '#ffffff',
+                borderRadius: '50%',
+                position: 'absolute',
+                zIndex: getRandomNaturalNumber(5),
+                transform: `translateX(-50%)`,
+           });
+
+            // アニメーションを開始
+            const animation_delay = getRandomNaturalNumber(10000);
+            setTimeout(() => {
+                animateSnow($snow);
+            }, animation_delay);
+
+            // 設置
+            resetSnowPosition($snow);
+            $app.insertAdjacentElement('beforeend', $snow);
+        }
+    }());
+    </script>
+</body>
+</html>
